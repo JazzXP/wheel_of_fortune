@@ -1,6 +1,6 @@
 {
-    "name": "wheel_of_fortune",
-    "short_name": "wheel_of_fortune",
+    "name": "Wheel Of Fortune",
+    "short_name": "WoF",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

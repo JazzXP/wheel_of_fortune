@@ -70,31 +70,61 @@ class _MyHomePageState extends State<MyHomePage> {
       return Container();
     }
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-          child: FortuneWheel(
-              items: items
-                  .map(
-                    (item) => FortuneItem(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 50.0, right: 20.0),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            item,
-                            style: TextStyle(fontSize: 30.0),
+      body: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      primary: Colors.white,
+                    ),
+                    onPressed: () async {
+                      setState(() {
+                        controller.add(Random().nextInt(items.length));
+                      });
+                    },
+                    child: Text('Spin')),
+              ),
+            ],
+          ),
+          Expanded(
+            child: FortuneWheel(
+                indicators: [
+                  FortuneIndicator(
+                    alignment: Alignment.topCenter,
+                    child: TriangleIndicator(
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+                items: items
+                    .map(
+                      (item) => FortuneItem(
+                        child: Padding(
+                          padding:
+                              const EdgeInsets.only(left: 50.0, right: 20.0),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              item,
+                              style: TextStyle(fontSize: 30.0),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  )
-                  .toList(),
-              selected: controller.stream,
-              onFling: () {
-                controller.add(Random().nextInt(items.length));
-              })),
+                    )
+                    .toList(),
+                selected: controller.stream,
+                onFling: () {
+                  controller.add(Random().nextInt(items.length));
+                }),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await showModalBottomSheet(
@@ -136,13 +166,17 @@ class _SettingsState extends State<Settings> {
       loading = true;
       return Container();
     }
-    print(items);
     return Container(
+      padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 8.0),
       child: Column(
         children: [
           Row(
             children: [
               TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  primary: Colors.white,
+                ),
                 onPressed: () async {
                   SharedPreferences prefs =
                       await SharedPreferences.getInstance();
@@ -150,14 +184,31 @@ class _SettingsState extends State<Settings> {
                 },
                 child: Text('Save'),
               ),
+              SizedBox(
+                width: 20.0,
+              ),
               TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    primary: Colors.white,
+                  ),
                   onPressed: () {
                     setState(() {
                       items.add('');
                     });
                   },
-                  child: Text('Add Row')),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text('Add Row'),
+                  )),
+              Expanded(
+                child: Container(),
+              ),
               TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    primary: Colors.white,
+                  ),
                   onPressed: () async {
                     setState(() {
                       items.clear();
