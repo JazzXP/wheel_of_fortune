@@ -9,6 +9,7 @@
 .history
 .svn/
 *.dmg
+docker-compose.yml
 
 # IntelliJ related
 *.iml
