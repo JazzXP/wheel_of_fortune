@@ -1,5 +1,7 @@
 macos:
 	flutter build macos --release
+macos_installer: macos
+	rm wheel.dmg
 	rm -rf build/macos/Build/Products/wheel_of_fortune
 	mkdir build/macos/Build/Products/wheel_of_fortune
 	cp -r build/macos/Build/Products/Release/Wheel\ Of\ Fortune.app build/macos/Build/Products/wheel_of_fortune/
@@ -9,4 +11,4 @@ web:
 	docker build -t registry.sdickinson.dev/wheel_of_fortune .
 	docker push registry.sdickinson.dev/wheel_of_fortune:latest
 
-.PHONY: macos web
+.PHONY: macos web macos_installer
