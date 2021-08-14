@@ -1,7 +1,10 @@
+// @dart=2.9
 import 'dart:async';
 import 'dart:math';
 
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_fortune_wheel/flutter_fortune_wheel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wheel_of_fortune/rainbow_style_strategy.dart';
@@ -25,7 +28,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
+  MyHomePage({Key key, @required this.title}) : super(key: key);
 
   final String title;
 
@@ -34,12 +37,28 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  ConfettiController _controllerCenter;
+
   _MyHomePageState() {
     _getPrefs();
   }
+
+  @override
+  void initState() {
+    super.initState();
+    _controllerCenter =
+        ConfettiController(duration: const Duration(milliseconds: 500));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controllerCenter.dispose();
+  }
+
   void _getPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? tempList = prefs.getStringList('items');
+    List<String> tempList = prefs.getStringList('items');
 
     if (tempList == null || tempList.length == 0) {
       tempList = [
@@ -59,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
       prefs.setStringList('items', tempList);
     }
     setState(() {
-      items.addAll(tempList!);
+      items.addAll(tempList);
     });
   }
 
@@ -72,60 +91,86 @@ class _MyHomePageState extends State<MyHomePage> {
       return Container();
     }
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+          Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      primary: Colors.white,
-                    ),
-                    onPressed: () async {
-                      setState(() {
-                        controller.add(Random().nextInt(items.length));
-                      });
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                          primary: Colors.white,
+                        ),
+                        onPressed: () async {
+                          setState(() {
+                            controller.add(Random().nextInt(items.length));
+                          });
+                        },
+                        child: Text('Spin')),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: FortuneWheel(
+                    styleStrategy: RainbowStyleStrategy(),
+                    indicators: [
+                      FortuneIndicator(
+                        alignment: Alignment.topCenter,
+                        child: TriangleIndicator(
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                    items: items
+                        .map(
+                          (item) => FortuneItem(
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 50.0, right: 20.0),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  item,
+                                  style: TextStyle(fontSize: 30.0),
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    selected: controller.stream,
+                    onAnimationEnd: () {
+                      _controllerCenter.play();
                     },
-                    child: Text('Spin')),
+                    onFling: () {
+                      controller.add(Random().nextInt(items.length));
+                    }),
               ),
             ],
           ),
-          Expanded(
-            child: FortuneWheel(
-                styleStrategy: RainbowStyleStrategy(),
-                indicators: [
-                  FortuneIndicator(
-                    alignment: Alignment.topCenter,
-                    child: TriangleIndicator(
-                      color: Colors.black,
-                    ),
-                  ),
+          Align(
+              alignment: Alignment.center,
+              child: ConfettiWidget(
+                numberOfParticles: 10,
+                emissionFrequency: 0.5,
+                maxBlastForce: 50.0,
+                confettiController: _controllerCenter,
+                blastDirectionality: BlastDirectionality
+                    .explosive, // don't specify a direction, blast randomly
+                colors: const [
+                  Colors.red,
+                  Colors.orange,
+                  Colors.yellow,
+                  Colors.green,
+                  Colors.cyan,
+                  Colors.blue,
+                  Colors.purple,
                 ],
-                items: items
-                    .map(
-                      (item) => FortuneItem(
-                        child: Padding(
-                          padding:
-                              const EdgeInsets.only(left: 50.0, right: 20.0),
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              item,
-                              style: TextStyle(fontSize: 30.0),
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                    .toList(),
-                selected: controller.stream,
-                onFling: () {
-                  controller.add(Random().nextInt(items.length));
-                }),
-          ),
+              )),
         ],
       ),
       floatingActionButton: FloatingActionButton(
