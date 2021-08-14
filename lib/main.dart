@@ -144,7 +144,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         .toList(),
                     selected: controller.stream,
                     onAnimationEnd: () {
-                      _controllerCenter.play();
+                      setState(() {
+                        _controllerCenter.play();
+                      });
                     },
                     onFling: () {
                       controller.add(Random().nextInt(items.length));
